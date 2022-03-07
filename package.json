@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node src/index.js",
     "start-dev": "nodemon . -q",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "test": "jest --runInBand --verbose --detectOpenHandles --passWithNoTests"
   },
   "keywords": [],
   "author": "",
