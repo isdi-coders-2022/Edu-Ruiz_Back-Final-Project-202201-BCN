@@ -1,13 +1,14 @@
 {
-  "name": "edu-ruiz_back-final-project-202201-bcn",
+  "name": "anime4me",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
     "start": "node src/index.js",
-    "start-dev": "nodemon . -q",
+    "start-dev": "nodemon src/. -q",
     "prepare": "husky install",
-    "test": "jest --runInBand --verbose --detectOpenHandles --passWithNoTests"
+    "test": "jest",
+    "coverage": "jest --coverage"
   },
   "keywords": [],
   "author": "",
@@ -20,7 +21,27 @@
   },
   "dependencies": {
     "@types/jest": "^27.4.1",
+    "chalk": "^4.0.0",
+    "commander": "^9.0.0",
+    "cors": "^2.8.5",
+    "debug": "^4.3.3",
+    "dotenv": "^16.0.0",
     "eslint-config-prettier": "^8.5.0",
-    "jest": "^27.5.1"
+    "express": "^4.17.3",
+    "helmet": "^5.0.2",
+    "jest": "^27.5.1",
+    "mongodb-memory-server": "^8.4.0",
+    "mongoose": "^6.2.4",
+    "morgan": "^1.10.0",
+    "nodemon": "^2.0.15"
+  },
+  "jest": {
+    "collectCoverageFrom": [
+      "src/**/*.js",
+      "!src/index.js",
+      "!src/server/startServer.js",
+      "!src/server/index.js",
+      "!src/database/index.js"
+    ]
   }
 }
