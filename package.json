@@ -44,7 +44,8 @@
       "!src/server/startServer.js",
       "!src/server/index.js",
       "!src/database/index.js",
-      "!src/database/models/*"
+      "!src/database/models/*",
+      "!src/server/schemas/*"
     ]
   }
 }
