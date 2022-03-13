@@ -6,7 +6,7 @@ const {
   createAnime,
 } = require("../controllers/animesController/animesController");
 
-const upload = multer({ dest: "public/" });
+const upload = multer({ dest: "public/animes/" });
 const router = express.Router();
 
 router.get("/", getAllAnimes);

@@ -34,8 +34,8 @@ const createAnime = async (req, res, next) => {
       next(error);
       return;
     }
-    const oldFileName = path.join("public", req.file.filename);
-    const newFileName = path.join("public", req.file.originalname);
+    const oldFileName = path.join("public/animes/", req.file.filename);
+    const newFileName = path.join("public/animes/", req.file.originalname);
     fs.rename(oldFileName, newFileName, (error) => {
       if (error) {
         next(error);
