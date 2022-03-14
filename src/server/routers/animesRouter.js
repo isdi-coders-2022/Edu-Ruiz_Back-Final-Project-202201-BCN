@@ -1,5 +1,6 @@
-const express = require("express");
 const multer = require("multer");
+const express = require("express");
+const joiValidator = require("../middlewares/joiValidator");
 const {
   getAllAnimes,
   deleteAnime,
@@ -11,6 +12,6 @@ const router = express.Router();
 
 router.get("/", getAllAnimes);
 router.delete("/:id", deleteAnime);
-router.post("/create", upload.single("image"), createAnime);
+router.post("/create", upload.single("image"), joiValidator, createAnime);
 
 module.exports = router;

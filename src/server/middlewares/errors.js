@@ -1,4 +1,4 @@
-const debug = require("debug");
+const debug = require("debug")("anime4me: middleware: error");
 const chalk = require("chalk");
 
 const notFoundError = (req, res) => {
