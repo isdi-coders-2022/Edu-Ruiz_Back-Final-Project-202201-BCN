@@ -58,9 +58,7 @@ const createAnime = async (req, res, next) => {
         });
         debug(chalk.cyanBright(`Anime created with name: ${newAnime.name}`));
         res.status(201);
-        res.json({
-          message: `Anime created with name: ${newAnime.name}`,
-        });
+        res.json(newAnime);
       }
     });
   } catch (error) {
