@@ -48,7 +48,8 @@
       "!src/database/index.js",
       "!src/database/models/*",
       "!src/server/schemas/*",
-      "!src/server/middlewares/joiValidator.js"
+      "!src/server/middlewares/joiValidator.js",
+      "!src/server/middlewares/validateRepeatUser.js"
     ]
   }
 }
