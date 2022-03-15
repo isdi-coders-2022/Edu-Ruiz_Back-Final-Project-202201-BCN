@@ -24,50 +24,47 @@ const firebaseConfig = {
 const fireBaseApp = initializeApp(firebaseConfig);
 const storage = getStorage(fireBaseApp);
 
-const createAnime = async (req, res, next) => {
-  const { name, autor } = req.body;
-  try {
-    const nameAnimeExists = await Anime.findOne({ name });
-    if (nameAnimeExists) {
-      const error = new Error(`Anime already exists!`);
-      error.code = 400;
-      next(error);
-      return;
+const createAnime = async (req, res, next) =>
+  new Promise((resolve) => {
+    try {
+      const { name, autor } = req.body;
+      const oldFileName = path.join("public/animes/", req.file.filename);
+      const newFileName = path.join("public/animes/", req.file.originalname);
+      fs.rename(oldFileName, newFileName, (error) => {
+        if (error) {
+          next(error);
+          resolve();
+        }
+      });
+      fs.readFile(newFileName, async (error, file) => {
+        if (error) {
+          next(error);
+        } else {
+          const storageRef = ref(
+            storage,
+            `${Date.now()}_${req.file.originalname}`
+          );
+          await uploadBytes(storageRef, file);
+          const firebaseFileURL = await getDownloadURL(storageRef);
+          const newAnime = await Anime.create({
+            name,
+            autor,
+            image: firebaseFileURL,
+          });
+          debug(chalk.cyanBright(`Anime created with name: ${newAnime.name}`));
+          res.status(201);
+          res.json(newAnime);
+          resolve();
+        }
+      });
+    } catch (error) {
+      fs.unlink(path.join("uploads", req.file.filename), () => {
+        error.code = 400;
+        next(error);
+        resolve();
+      });
     }
-    const oldFileName = path.join("public/animes/", req.file.filename);
-    const newFileName = path.join("public/animes/", req.file.originalname);
-    fs.rename(oldFileName, newFileName, (error) => {
-      if (error) {
-        next(error);
-      }
-    });
-    fs.readFile(newFileName, async (error, file) => {
-      if (error) {
-        next(error);
-      } else {
-        const storageRef = ref(
-          storage,
-          `${Date.now()}_${req.file.originalname}`
-        );
-        await uploadBytes(storageRef, file);
-        const firebaseFileURL = await getDownloadURL(storageRef);
-        const newAnime = await Anime.create({
-          name,
-          autor,
-          image: firebaseFileURL,
-        });
-        debug(chalk.cyanBright(`Anime created with name: ${newAnime.name}`));
-        res.status(201);
-        res.json(newAnime);
-      }
-    });
-  } catch (error) {
-    fs.unlink(path.join("uploads", req.file.filename), () => {
-      error.code = 400;
-      next(error);
-    });
-  }
-};
+  });
 
 const getAllAnimes = async (req, res) => {
   const animes = await Anime.find();
