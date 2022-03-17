@@ -5,6 +5,7 @@ const {
   getAllAnimes,
   deleteAnime,
   createAnime,
+  updateAnime,
 } = require("../controllers/animesController/animesController");
 const animeJoiSchema = require("../schemas/animeJoiSchema");
 const validateRepeatUser = require("../middlewares/validateRepeatUser");
@@ -21,5 +22,6 @@ router.post(
   validate(animeJoiSchema),
   createAnime
 );
+router.put("/:id", validateRepeatUser, validate(animeJoiSchema), updateAnime);
 
 module.exports = router;
