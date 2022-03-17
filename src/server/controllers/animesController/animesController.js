@@ -71,6 +71,17 @@ const getAllAnimes = async (req, res) => {
   res.json({ animes });
 };
 
+const getAnime = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const animes = await Anime.findById(id);
+    res.json({ animes });
+  } catch (error) {
+    error.message = "can't find anime";
+    next(error);
+  }
+};
+
 const deleteAnime = async (req, res, next) => {
   try {
     const { id } = req.params;
@@ -93,4 +104,10 @@ const updateAnime = async (req, res, next) => {
   }
 };
 
-module.exports = { getAllAnimes, deleteAnime, createAnime, updateAnime };
+module.exports = {
+  getAllAnimes,
+  deleteAnime,
+  createAnime,
+  updateAnime,
+  getAnime,
+};

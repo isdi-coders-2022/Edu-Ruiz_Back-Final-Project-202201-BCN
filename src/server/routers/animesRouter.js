@@ -6,6 +6,7 @@ const {
   deleteAnime,
   createAnime,
   updateAnime,
+  getAnime,
 } = require("../controllers/animesController/animesController");
 const animeJoiSchema = require("../schemas/animeJoiSchema");
 const validateRepeatUser = require("../middlewares/validateRepeatUser");
@@ -14,6 +15,7 @@ const upload = multer({ dest: "public/animes/" });
 const router = express.Router();
 
 router.get("/", getAllAnimes);
+router.get("/:id", getAnime);
 router.delete("/:id", deleteAnime);
 router.post(
   "/create",
