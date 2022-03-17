@@ -58,7 +58,7 @@ const createAnime = async (req, res, next) =>
         }
       });
     } catch (error) {
-      fs.unlink(path.join("uploads", req.file.filename), () => {
+      fs.unlink(path.join("public/animes/", req.file.filename), () => {
         error.code = 400;
         next(error);
         resolve();
@@ -77,9 +77,20 @@ const deleteAnime = async (req, res, next) => {
     const deleted = await Anime.findByIdAndDelete(id);
     res.status(200).json(deleted);
   } catch (error) {
-    error.message = "cant delete anime";
+    error.message = "can't delete anime";
     next(error);
   }
 };
 
-module.exports = { getAllAnimes, deleteAnime, createAnime };
+const updateAnime = async (req, res, next) => {
+  try {
+    const anime = req.params;
+    const animeToUpdate = req.body;
+    const animeUpdated = await Anime.findByIdAndUpdate(anime.id, animeToUpdate);
+    res.status(200).json(animeUpdated);
+  } catch (error) {
+    next(new Error("can't update this anime"));
+  }
+};
+
+module.exports = { getAllAnimes, deleteAnime, createAnime, updateAnime };
