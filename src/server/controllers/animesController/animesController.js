@@ -74,8 +74,16 @@ const getAllAnimes = async (req, res) => {
 const getAnime = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const animes = await Anime.findById(id);
-    res.json({ animes });
+    const anime = await Anime.findById(id);
+    if (anime) {
+      res.status(200).json({ anime });
+      debug(`Requested anime: ${anime}`);
+    } else {
+      const error = new Error("No se ha encontrado ningun anime");
+      error.code = 404;
+      next(error);
+      debug(chalk.red(`Error: ${error.message}`));
+    }
   } catch (error) {
     error.message = "can't find anime";
     next(error);
