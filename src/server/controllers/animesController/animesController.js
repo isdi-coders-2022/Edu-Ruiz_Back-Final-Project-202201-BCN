@@ -102,16 +102,65 @@ const deleteAnime = async (req, res, next) => {
   }
 };
 
-const updateAnime = async (req, res, next) => {
-  try {
-    const anime = req.params;
-    const animeToUpdate = req.body;
-    const animeUpdated = await Anime.findByIdAndUpdate(anime.id, animeToUpdate);
-    res.status(200).json(animeUpdated);
-  } catch (error) {
-    next(new Error("can't update this anime"));
-  }
-};
+const updateAnime = async (req, res, next) =>
+  new Promise((resolve) => {
+    try {
+      if (req.file) {
+        const anime = req.body;
+        const { id } = req.params;
+
+        const oldFileName = path.join("public/animes/", req.file.filename);
+        const newFileName = path.join("public/animes/", req.body.name);
+        fs.rename(oldFileName, newFileName, (error) => {
+          if (error) {
+            next(error);
+            resolve();
+          }
+        });
+
+        fs.readFile(newFileName, async (error, file) => {
+          if (error) {
+            next(error);
+            resolve();
+          } else {
+            const storageRef = ref(storage, anime.name);
+            await uploadBytes(storageRef, file);
+
+            const firebaseFileURL = await getDownloadURL(storageRef);
+            anime.image = firebaseFileURL;
+            const updatedAnime = await Anime.findByIdAndUpdate(id, anime, {
+              new: true,
+            });
+
+            res.status(200).json(updatedAnime);
+            resolve();
+          }
+        });
+      } else {
+        (async () => {
+          const anime = req.body;
+          const { id } = req.params;
+
+          const updatedAnime = await Anime.findByIdAndUpdate(id, anime, {
+            new: true,
+          });
+
+          res.status(200).json(updatedAnime);
+          resolve();
+        })();
+      }
+    } catch (error) {
+      fs.unlink(path.join("public/animes/", req.file.filename), () => {
+        error.code = 400;
+        next(error);
+        resolve();
+      });
+      error.message = "Error, can't create the player";
+      error.code = 400;
+      next(error);
+      resolve();
+    }
+  });
 
 module.exports = {
   getAllAnimes,
