@@ -1,15 +1,10 @@
 const Anime = require("../../../database/models/Anime");
-const {
-  getAllAnimes,
-  deleteAnime,
-  updateAnime,
-} = require("./animesController");
+const { getAllAnimes, deleteAnime } = require("./animesController");
 
 jest.mock("../../../database/models/Anime");
 
 const mockAnimeDelete = jest.spyOn(Anime, "findByIdAndDelete");
 const mockAnimeGet = jest.spyOn(Anime, "find");
-const mockAnimeUpdate = jest.spyOn(Anime, "findByIdAndUpdate");
 
 describe("Given an getAllAnimes controller", () => {
   beforeEach(() => {
@@ -64,41 +59,6 @@ describe("Given a deleteAnime controller", () => {
       const next = jest.fn();
 
       await deleteAnime(null, null, next);
-
-      expect(next).toHaveBeenCalledWith(expectedError);
-    });
-  });
-});
-
-describe("Given a updateReview component", () => {
-  describe("When it gets response with status 200", () => {
-    test("Then it should update the review with id3", async () => {
-      const res = { status: jest.fn().mockReturnThis(), json: jest.fn() };
-      const id = "3";
-      const req = {};
-      req.params = { id };
-      const status = 200;
-      const expectedDeletedAnime = { id: "3" };
-      const next = jest.fn();
-      mockAnimeUpdate.mockResolvedValue(expectedDeletedAnime);
-
-      await updateAnime(req, res, next);
-
-      expect(res.status).toHaveBeenCalledWith(status);
-      expect(res.json).toHaveBeenCalledWith({ id });
-    });
-  });
-
-  describe("When it dispatch a response", () => {
-    test("Then it should call function next with message 'can't update review'", async () => {
-      const error = new Error();
-      mockAnimeUpdate.mockImplementation(() => Promise.reject(error));
-      const expectedErrorMessage = "can't update this anime";
-      const expectedError = new Error(expectedErrorMessage);
-
-      const next = jest.fn();
-
-      await updateAnime(null, null, next);
 
       expect(next).toHaveBeenCalledWith(expectedError);
     });
