@@ -8,9 +8,12 @@ const {
 } = require("firebase/storage");
 const path = require("path");
 const fs = require("fs");
-
 const chalk = require("chalk");
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
+
 const Anime = require("../../../database/models/Anime");
+const User = require("../../../database/models/User");
 
 const firebaseConfig = {
   apiKey: process.env.FIREBASE_KEY,
@@ -23,6 +26,105 @@ const firebaseConfig = {
 
 const fireBaseApp = initializeApp(firebaseConfig);
 const storage = getStorage(fireBaseApp);
+
+const getUser = async (req, res) => {
+  const headerAuth = req.header("Authorization");
+  const token = headerAuth.replace("Bearer ", "");
+  const { id } = jwt.verify(token, process.env.JWT_SECRET);
+
+  const actualUser = await User.findById(id);
+  res.status(200).json({ actualUser });
+};
+
+const getAllUsers = async (req, res) => {
+  const headerAuth = req.header("Authorization");
+  const token = headerAuth.replace("Bearer ", "");
+  const { id } = jwt.verify(token, process.env.JWT_SECRET);
+
+  const usersData = await User.find();
+  const actualUser = await User.findById(id);
+  const users = usersData.filter((user) => user.id !== actualUser.id);
+  res.status(200).json({ users });
+};
+
+const userLogin = async (req, res, next) => {
+  const { username, password } = req.body;
+  const findUser = await User.findOne({ username });
+
+  if (!findUser) {
+    const error = new Error("User not found");
+    error.code = 401;
+    return next(error);
+  }
+
+  const rightPassword = await bcrypt.compare(password, findUser.password);
+
+  if (!rightPassword) {
+    const error = new Error("Invalid password");
+    error.code = 401;
+    return next(error);
+  }
+
+  const UserData = {
+    name: findUser.name,
+    id: findUser.id,
+  };
+
+  const token = jwt.sign(UserData, process.env.JWT_SECRET);
+  return res.json({ token });
+};
+
+const userRegister = async (req, res, next) => {
+  const { username, password, name, animes } = req.body;
+  try {
+    const encryptedPassword = await bcrypt.hash(password, +process.env.SALT);
+    const usernameExists = await User.findOne({ username });
+    if (usernameExists) {
+      const error = new Error(`Username ${username} already exists!`);
+      error.code = 400;
+      next(error);
+      return;
+    }
+    const oldFileName = path.join("public/users/", req.file.filename);
+    const newFileName = path.join("public/users/", req.file.originalname);
+    fs.rename(oldFileName, newFileName, (error) => {
+      if (error) {
+        next(error);
+      }
+    });
+    fs.readFile(newFileName, async (error, file) => {
+      if (error) {
+        next(error);
+      } else {
+        const storageRef = ref(
+          storage,
+          `${Date.now()}_UserPic_${req.file.originalname}`
+        );
+        await uploadBytes(storageRef, file);
+        const firebaseFileURL = await getDownloadURL(storageRef);
+        const newUser = await User.create({
+          username,
+          password: encryptedPassword,
+          name,
+          image: firebaseFileURL,
+          animes,
+        });
+        debug(
+          chalk.cyanBright(`User created with username: ${newUser.username}`)
+        );
+        res.status(201);
+        res.json({
+          message: `User registered with username: ${newUser.username}`,
+        });
+      }
+    });
+  } catch (error) {
+    fs.unlink(path.join("public/users/", req.file.filename), () => {
+      error.code = 400;
+      next(error);
+    });
+  }
+};
 
 const createAnime = async (req, res, next) =>
   new Promise((resolve) => {
@@ -168,4 +270,8 @@ module.exports = {
   createAnime,
   updateAnime,
   getAnime,
+  getUser,
+  getAllUsers,
+  userLogin,
+  userRegister,
 };
