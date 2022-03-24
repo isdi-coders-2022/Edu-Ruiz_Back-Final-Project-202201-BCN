@@ -1,3 +1,4 @@
+require("dotenv").config();
 const { MongoMemoryServer } = require("mongodb-memory-server");
 const mongoose = require("mongoose");
 const request = require("supertest");
@@ -26,6 +27,16 @@ beforeEach(async () => {
     password: "$2b$10$KgrIhPGAY12Xy/NPdUdLzubUtsCe0VV42YqPj6mk.sb.8.blGOg7W",
     animes: [],
     image: "image.png",
+  });
+
+  await User.create({
+    name: "edu",
+    username: "eya",
+    password: "$2b$10$.wm84Yvm6DreufDQIvz/JOSQfPb08Xu75U1yX/mxxpjm1UJv6t6OK",
+    Animes: [],
+    image:
+      "https://firebasestorage.googleapis.com/v0/b/anime4me-71d29.appspot.com/o/1647807529873_UserPic_profilePic.jpeg?alt=media&token=17aeaaff-cec0-4c35-b7d7-6445b9b4f80f",
+    _id: "62378c2be4f1bc27aa9f1433",
   });
 });
 
@@ -67,6 +78,60 @@ describe("When it receives a POST request with a repeated user", () => {
     };
 
     await request(app).post("/users/register").send(user).expect(400);
+  });
+});
+
+describe("When it receives a POST request with a repeated user", () => {
+  test("Then it should return a 401 status and the new user", async () => {
+    const user = {
+      name: "user1",
+      username: "username1",
+    };
+
+    await request(app).get("/users/user").send(user).expect(401);
+  });
+});
+
+describe("When it send a GET request with a Token", () => {
+  test("Then it should return a 200 status and the  user", async () => {
+    const token =
+      "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiZWR1IiwiaWQiOiI2MjM3OGMyYmU0ZjFiYzI3YWE5ZjE0MzMiLCJpYXQiOjE2NDgwNzY4Nzd9.sOHBDr-Y1otyrhrkymiCyUaWWG5Qa7fM_XU_ylv1A5E";
+
+    const user = {
+      actualUser: {
+        Animes: [],
+        id: "62378c2be4f1bc27aa9f1433",
+        image:
+          "https://firebasestorage.googleapis.com/v0/b/anime4me-71d29.appspot.com/o/1647807529873_UserPic_profilePic.jpeg?alt=media&token=17aeaaff-cec0-4c35-b7d7-6445b9b4f80f",
+        name: "edu",
+        password:
+          "$2b$10$.wm84Yvm6DreufDQIvz/JOSQfPb08Xu75U1yX/mxxpjm1UJv6t6OK",
+        username: "eya",
+      },
+    };
+
+    const { body } = await request(app)
+      .get("/users/user")
+      .set("Authorization", `${token}`)
+      .expect(200);
+
+    expect(body).toMatchObject(user);
+  });
+});
+
+describe("When it send a GET request with a Token", () => {
+  test("Then it should return a 200 status and the  user", async () => {
+    const token =
+      "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoiZWR1IiwiaWQiOiI2MjM3OGMyYmU0ZjFiYzI3YWE5ZjE0MzMiLCJpYXQiOjE2NDgwNzY4Nzd9.sOHBDr-Y1otyrhrkymiCyUaWWG5Qa7fM_XU_ylv1A5E";
+
+    const user = {};
+
+    const { body } = await request(app)
+      .get("/users/allusers")
+      .set("Authorization", `${token}`)
+      .expect(200);
+
+    expect(body).toMatchObject(user);
   });
 });
 

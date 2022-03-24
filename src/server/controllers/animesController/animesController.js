@@ -31,7 +31,6 @@ const getUser = async (req, res) => {
   const headerAuth = req.header("Authorization");
   const token = headerAuth.replace("Bearer ", "");
   const { id } = jwt.verify(token, process.env.JWT_SECRET);
-
   const actualUser = await User.findById(id);
   res.status(200).json({ actualUser });
 };
@@ -180,11 +179,6 @@ const getAnime = async (req, res, next) => {
     if (anime) {
       res.status(200).json(anime);
       debug(`Requested anime: ${anime.name}`);
-    } else {
-      const error = new Error("can't find anime");
-      error.code = 404;
-      next(error);
-      debug(chalk.red(`Error: ${error.message}`));
     }
   } catch (error) {
     error.code = 404;

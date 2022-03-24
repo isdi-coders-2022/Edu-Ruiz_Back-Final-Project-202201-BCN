@@ -11,6 +11,7 @@ const auth = (req, res, next) => {
     const token = headerAuth.replace("Bearer ", "");
     try {
       jwt.verify(token, process.env.JWT_SECRET);
+
       next();
     } catch (error) {
       error.code = 401;

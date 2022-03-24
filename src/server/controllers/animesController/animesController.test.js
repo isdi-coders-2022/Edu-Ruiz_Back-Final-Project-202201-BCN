@@ -1,8 +1,10 @@
 const Anime = require("../../../database/models/Anime");
+const User = require("../../../database/models/User");
 const {
   getAllAnimes,
   deleteAnime,
   updateAnime,
+  getUser,
 } = require("./animesController");
 
 jest.mock("../../../database/models/Anime");
@@ -10,6 +12,7 @@ jest.mock("../../../database/models/Anime");
 const mockAnimeDelete = jest.spyOn(Anime, "findByIdAndDelete");
 const mockAnimeGet = jest.spyOn(Anime, "find");
 const mockAnimeUpdate = jest.spyOn(Anime, "findByIdAndUpdate");
+const mockUser = jest.spyOn(User, "findById");
 
 describe("Given an getAllAnimes controller", () => {
   beforeEach(() => {

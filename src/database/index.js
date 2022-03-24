@@ -14,7 +14,6 @@ const databaseConnect = (connectionString) =>
         delete ret.__v;
       },
     });
-    mongoose.set("returnOriginal");
     mongoose.connect(connectionString, (error) => {
       if (error) {
         reject(new Error(`Database not connected: ${error.message}`));
